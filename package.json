@@ -1,0 +1,26 @@
+{
+  "name": "@mangar2/jsonschema",
+  "version": "2.6.2",
+  "description": "JSON schema check",
+  "main": "jsonschema.ts",
+  "scripts": {
+    "test": "tsc && node ./test/test.js",
+    "doku": "js2md . README.md",
+    "lint": "eslint *.js",
+    "prepublishOnly": "tsc && npm run lint && npm test && npm run doku"
+  },
+  "keywords": [
+    "validate",
+    "JSON",
+    "Schema"
+  ],
+  "author": "Volker Böhm",
+  "license": "LGPL-3.0-or-later",
+  "homepage": "https://github.com/Mangar2/yaha.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mangar2/yaha/tree/master/node_modules/@mangar2/checkinput"
+  },
+  "dependencies": {
+  }
+}

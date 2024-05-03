@@ -1,0 +1,36 @@
+# Node.js ignorieren
+node_modules/
+
+# Build-Ausgaben ignorieren
+dist/
+build/
+out/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Verzeichnisse von Betriebssystemen
+.DS_Store
+Thumbs.db
+
+# Editor-Verzeichnisse und -Dateien
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Umgebungsdateien
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Lock-Dateien
+package-lock.json
+yarn.lock
+
+# Build Dateien
+*.tsbuildinfo

@@ -1,0 +1,164 @@
+[
+    {
+        "description": "required validation",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "name": { "type": "string" },
+                "doLog": { "type": ["boolean", "number"] },
+                "durationWithoutMovementInMinutes": { "type": "number" },
+                "allOf": {
+                    "type": ["array", "string"],
+                    "minItems": 1,
+                    "items": { "type": "string" }
+                },
+                "anyOf": {
+                    "type": ["array", "string"],
+                    "minitems": 1,
+                    "items": { "type": "string" }
+                },
+                "allow": {
+                    "type": "array",
+                    "minitems": 1,
+                    "items": { "type": "string" }
+                },
+                "noneOf": {
+                    "type": ["array", "string"],
+                    "minitems": 1,
+                    "items": { "type": "string" }
+                },
+                "topic": { "$ref": "#/definitions/topic" },
+                "check": { "$ref": "#/definitions/check" },
+                "value": { "$ref": "#/definitions/check" },
+                "time": {
+                    "allOf": [
+                        {
+                            "type": ["string", "array"]
+                        },
+                        {
+                            "$ref": "#/definitions/check"
+                        }
+                    ]
+                },
+                "duration": { "type": ["number", "string"] },
+                "cooldownInSeconds": {
+                    "type": ["integer"],
+                    "minimum": 0
+                },
+                "delayInSeconds": {
+                    "type": ["integer"],
+                    "minimum": 0
+                },
+                "qos": { "enum": [0, 1, 2] }
+            },
+            "required": ["topic"],
+            "additionalProperties": false,
+            "definitions": {
+                "topic": {
+                    "if": {
+                        "required": ["value"]
+                    },
+                    "then": {
+                        "type": ["string", "array"],
+                        "minitems": 1,
+                        "items": { "type": "string" }
+                    },
+                    "else": {
+                        "type": ["object"],
+                        "minProperties": 1,
+                        "additionalProperties": { "$ref": "#/definitions/check" }
+                    }
+                },
+                "check": {
+                    "type": ["number", "string", "array"],
+                    "anyOf": [
+                        {
+                            "items": [
+                                {
+                                    "enum": ["and", "or"]
+                                }
+                            ],
+                            "additionalitems": { "$ref": "#/definitions/check" }
+                        },
+                        {
+                            "items": [
+                                {
+                                    "enum": [
+                                        "+", "-",
+                                        "=", "equal", "equals",
+                                        "!=", "not equal", "not equals",
+                                        "<", "below", "less",
+                                        ">", "above", "greater",
+                                        "<=", "below or equal", "less or equal",
+                                        ">=", "above or equal", "greater or equal"
+                                    ]
+                                },
+                                { "$ref": "#/definitions/check" },
+                                { "$ref": "#/definitions/check" }
+                            ]
+                        },
+                        {
+                            "items": [
+                                {
+                                    "enum": ["switch"]
+                                },
+                                {
+                                    "$ref": "#/definitions/check"
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": { "type": ["string", "number", "boolean"] }
+                                }
+                            ],
+                            "additionalitems": false
+                        },
+                        {
+                            "items": [
+                                {
+                                    "enum": ["if"]
+                                },
+                                { "$ref": "#/definitions/check" },
+                                { "$ref": "#/definitions/check" },
+                                { "$ref": "#/definitions/check" }
+                            ],
+                            "additionalitems": false
+                        },
+                        {
+                            "items": [
+                                {
+                                    "enum": ["call"]
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "The downCooling rule should be valid",
+                "data": {
+                    "time": ["switch", "$SYS/presence", {"absent": "9:30", "awake": "10:00", "sleeping": "9:30"}],
+                    "duration": "5:00",
+                    "doLog": true,
+                    "check": [
+                        "and",
+                        [">", "outdoor/garden/weather2/sensor/temperature", 22],
+                        [">", "ground/hallway/center/temperature and humidity sensor/temperature in celsius", 
+                            ["switch", "$SYS/presence", {"absent": 23, "awake": 23, "sleeping": 24}]
+                        ],
+                        ["<", "$SYS/ground/motion/latest", ["+", "/time", 30]]
+                    ],
+                    "topic": {
+                        "ground/livingroom/zwave/shutter/southeast/set": "off",
+                        "ground/livingroom/zwave/shutter/southwest/set": "off"
+                    }
+                },
+                "valid": true
+            }
+        ]
+    }
+]

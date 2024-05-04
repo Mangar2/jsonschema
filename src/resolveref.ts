@@ -16,7 +16,7 @@
  * @param definitions - The collection of subschema definitions.
  * @returns The schema definition if found, otherwise undefined.
  */
-const getSchemaById = (id: string, definitions: Record<string, any>): any | undefined => {
+const getSchemaById = (id: string, definitions: Record<string, any>): any => {
     for (const property in definitions) {
         const definition = definitions[property];
         if (definition.$id === id) {
@@ -38,7 +38,7 @@ const getSchemaByPath = (path: string, definition: any): any => {
     let result: any = definition;
     for (let chunk of pathChunks) {
         const decodedChunk = decodeURIComponent(chunk.replace(/~1/g, '/').replace(/~0/g, '~'));
-        result = result && result[decodedChunk];
+        result = result?.[decodedChunk];
         if (result === undefined) {
             break;
         }

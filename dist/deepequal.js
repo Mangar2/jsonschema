@@ -21,15 +21,7 @@ const checkresult_1 = require("./checkresult");
  */
 function deepEqualRec(a, b, path = '') {
     const result = new checkresult_1.CheckResult(true);
-    if (typeof a !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
-        result.invalidate({
-            path,
-            message: 'types are different',
-            expected: `type of ${typeof a}`,
-            received: `type of ${typeof b}`
-        });
-    }
-    else if (Array.isArray(a) && Array.isArray(b)) {
+    const checkArray = (a, b, path) => {
         if (a.length !== b.length) {
             result.invalidate({
                 path,
@@ -41,8 +33,8 @@ function deepEqualRec(a, b, path = '') {
         for (const index in a) {
             result.addCheck(deepEqualRec(a[index], b[index], `${path}/${index}`));
         }
-    }
-    else if ((0, checktype_1.isObject)(a) && (0, checktype_1.isObject)(b)) {
+    };
+    const checkObject = (a, b, path) => {
         if (Object.keys(a).length !== Object.keys(b).length) {
             result.invalidate({
                 path,
@@ -64,6 +56,20 @@ function deepEqualRec(a, b, path = '') {
                 result.addCheck(deepEqualRec(a[key], b[key], `${path}/${key}`));
             }
         }
+    };
+    if (typeof a !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
+        result.invalidate({
+            path,
+            message: 'types are different',
+            expected: `type of ${typeof a}`,
+            received: `type of ${typeof b}`
+        });
+    }
+    else if (Array.isArray(a) && Array.isArray(b)) {
+        checkArray(a, b, path);
+    }
+    else if ((0, checktype_1.isObject)(a) && (0, checktype_1.isObject)(b)) {
+        checkObject(a, b, path);
     }
     else if (a !== b) {
         result.invalidate({

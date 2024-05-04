@@ -11,6 +11,7 @@
 import { isObject } from './checktype';
 import { CheckResult } from './checkresult';
 
+
 /**
  * Recursively checks an element deeply for differences against another.
  * @param a The first element to compare.
@@ -21,14 +22,7 @@ import { CheckResult } from './checkresult';
 export function deepEqualRec(a: any, b: any, path: string = ''): CheckResult {
     const result = new CheckResult(true);
 
-    if (typeof a !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
-        result.invalidate({ 
-            path,
-            message: 'types are different',
-            expected: `type of ${typeof a}`, 
-            received: `type of ${typeof b}`
-        });
-    } else if (Array.isArray(a) && Array.isArray(b)) {
+    const checkArray = (a: any[], b: any[], path: string) => {
         if (a.length !== b.length) {
             result.invalidate({ 
                 path,
@@ -40,7 +34,9 @@ export function deepEqualRec(a: any, b: any, path: string = ''): CheckResult {
         for (const index in a) {
             result.addCheck(deepEqualRec(a[index], b[index], `${path}/${index}`));
         }
-    } else if (isObject(a) && isObject(b)) {
+    };
+
+    const checkObject = (a: Record<string, any>, b: Record<string, any>, path: string) => {
         if (Object.keys(a).length !== Object.keys(b).length) {
             result.invalidate({ 
                 path,
@@ -62,6 +58,19 @@ export function deepEqualRec(a: any, b: any, path: string = ''): CheckResult {
                 result.addCheck(deepEqualRec(a[key], b[key], `${path}/${key}`));
             }
         }
+    };
+
+    if (typeof a !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
+        result.invalidate({ 
+            path,
+            message: 'types are different',
+            expected: `type of ${typeof a}`, 
+            received: `type of ${typeof b}`
+        });
+    } else if (Array.isArray(a) && Array.isArray(b)) {
+        checkArray(a, b, path);
+    } else if (isObject(a) && isObject(b)) {
+        checkObject(a, b, path);
     } else if (a !== b) {
         result.invalidate({ 
             path,
@@ -73,4 +82,5 @@ export function deepEqualRec(a: any, b: any, path: string = ''): CheckResult {
 
     return result;
 }
+
 

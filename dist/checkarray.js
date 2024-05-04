@@ -104,7 +104,8 @@ const checkContains = (definition, array, checkSubschema) => {
  */
 const checkArrayItems = (definition, array, checkSubschema) => {
     const result = new checkresult_1.CheckResult(true);
-    array.forEach((item, index) => {
+    for (const index in array) {
+        const item = array[index];
         let check;
         const defItem = definition.items[index];
         if (defItem !== undefined) {
@@ -117,23 +118,23 @@ const checkArrayItems = (definition, array, checkSubschema) => {
                 expected: `A maximum of ${definition.items.length} elements.`,
                 received: array
             });
-            return;
+            break;
         }
         else if (definition.additionalItems !== undefined) {
             check = checkSubschema(definition.additionalItems, item);
         }
         else {
-            return;
+            break;
         }
         if (!check.check) {
             check.addToPath(`[${index}]`);
             result.addCheck(check);
-            return;
+            break;
         }
         else {
             result.addCheck(check);
         }
-    });
+    }
     return result;
 };
 /**

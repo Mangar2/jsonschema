@@ -21,10 +21,10 @@ const checkStringFormat = (format, variable) => {
     const result = new checkresult_1.CheckResult(true);
     switch (format) {
         case 'date':
-            result.check = variable.match(/^\d{4}-\d{2}-\d{2}$/) !== null;
+            result.check = /^\d{4}-\d{2}-\d{2}$/.test(variable);
             break;
         case 'date-time':
-            result.check = variable.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d{3})?(Z|[+-]\d{2}:\d{2})$/) !== null;
+            result.check = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d{3})?(Z|[+-]\d{2}:\d{2})$/.test(variable);
             break;
     }
     if (result.check === false) {

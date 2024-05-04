@@ -29,31 +29,30 @@ export const isObject = (input: any): input is Record<string, unknown> => {
  */
 export const checkType = (definition: { type: string | string[] }, variable: any): CheckResult => {
     const result = new CheckResult(true);
-    if (definition.type !== undefined) {
-        const typeList: string[] = Array.isArray(definition.type) ? definition.type : [definition.type];
-        for (const type of typeList) {
-            switch (type) {
-            case 'string': result.check = typeof variable === 'string'; break;
-            case 'number': result.check = typeof variable === 'number'; break;
-            case 'integer': result.check = Number.isInteger(variable); break;
-            case 'array': result.check = Array.isArray(variable); break;
-            case 'object': result.check = isObject(variable); break;
-            case 'boolean': result.check = typeof variable === 'boolean'; break;
-            case 'null': result.check = variable === null; break;
-            }
-            if (result.check) {
-                break;
-            }
+    const typeList: string[] = Array.isArray(definition.type) ? definition.type : [definition.type];
+    let check = true; // True, if the list of types is empty
+    for (const type of typeList) {
+        switch (type) {
+        case 'string': check = typeof variable === 'string'; break;
+        case 'number': check = typeof variable === 'number'; break;
+        case 'integer': check = Number.isInteger(variable); break;
+        case 'array': check = Array.isArray(variable); break;
+        case 'object': check = isObject(variable); break;
+        case 'boolean': check = typeof variable === 'boolean'; break;
+        case 'null': check = variable === null; break;
         }
-        if (!result.check) {
-            const expected = `${typeList.length > 1 ? 'any of ': ''}${typeList.join(',')}`
-            result.invalidate({
-                path: '',
-                message: 'Type mismatch.',
-                expected,
-                received: variable
-            });
+        if (check) {
+            break;
         }
+    }
+    if (!check) {
+        const expected = `${typeList.length > 1 ? 'any of ': ''}${typeList.join(',')}`
+        result.invalidate({
+            path: '',
+            message: 'Type mismatch.',
+            expected,
+            received: variable
+        });
     }
     return result;
 };

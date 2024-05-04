@@ -84,7 +84,7 @@ class CheckResult {
     }
     getMessage(message, path, expected, received = '') {
         return {
-            path: path === undefined ? '' : path,
+            path: path !== null && path !== void 0 ? path : '',
             message,
             expected: this.stringify(expected),
             received: this.stringify(received),

@@ -106,7 +106,8 @@ const checkContains = (definition: any, array: any[], checkSubschema: (def: any,
  */
 const checkArrayItems = (definition: any, array: any[], checkSubschema: (def: any, data: any) => CheckResult): CheckResult => {
     const result = new CheckResult(true);
-    array.forEach((item, index) => {
+    for (const index in array) {
+        const item = array[index]
         let check: CheckResult;
         const defItem = definition.items[index];
         if (defItem !== undefined) {
@@ -118,20 +119,20 @@ const checkArrayItems = (definition: any, array: any[], checkSubschema: (def: an
                 expected: `A maximum of ${definition.items.length} elements.`,
                 received: array
             })
-            return;
+            break;
         } else if (definition.additionalItems !== undefined) {
             check = checkSubschema(definition.additionalItems, item);
         } else {
-            return;
+            break;
         }
         if (!check.check) {
             check.addToPath(`[${index}]`);
             result.addCheck(check);
-            return;
+            break;
         } else {
             result.addCheck(check);
         }
-    });
+    }
     return result;
 };
 

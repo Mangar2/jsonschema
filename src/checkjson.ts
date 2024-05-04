@@ -201,7 +201,7 @@ export class CheckJson {
     public validate = (data: any): CheckJsonResult => {
         const check = this._checkSchema(this.definition, data);
         return {
-            result: check.check ? true : false,
+            result: Boolean(check.check),
             messages: check.messages,
             messagesAsString: check.getErrorAsString()
         };

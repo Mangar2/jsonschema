@@ -36,8 +36,8 @@ const getSchemaByPath = (path, definition) => {
     pathChunks.shift(); // Remove the first empty element from leading slash
     let result = definition;
     for (let chunk of pathChunks) {
-        chunk = decodeURIComponent(chunk.replace(/~1/g, '/').replace(/~0/g, '~'));
-        result = result && result[chunk];
+        const decodedChunk = decodeURIComponent(chunk.replace(/~1/g, '/').replace(/~0/g, '~'));
+        result = result && result[decodedChunk];
         if (result === undefined) {
             break;
         }
@@ -52,16 +52,18 @@ const getSchemaByPath = (path, definition) => {
  */
 const resolveRef = (id, definitionRoot) => {
     var _a;
-    const isLocal = id.charAt(0) === '#';
-    const isPath = (id === '#' || id.charAt(1) === '/');
-    if (isLocal && isPath) {
+    const isLocal = id.startsWith('#');
+    if (!isLocal) {
+        return undefined;
+    }
+    const isPath = (id === '#' || (id === null || id === void 0 ? void 0 : id.charAt(1)) === '/');
+    if (isPath) {
         return getSchemaByPath(id, definitionRoot);
     }
-    else if (isLocal) {
+    else {
         const definitions = (_a = definitionRoot.$defs) !== null && _a !== void 0 ? _a : definitionRoot.definitions;
         return getSchemaById(id, definitions);
     }
-    return undefined;
 };
 exports.resolveRef = resolveRef;
 //# sourceMappingURL=resolveref.js.map

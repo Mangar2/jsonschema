@@ -182,7 +182,7 @@ class CheckJson {
         this.validate = (data) => {
             const check = this._checkSchema(this.definition, data);
             return {
-                result: check.check ? true : false,
+                result: Boolean(check.check),
                 messages: check.messages,
                 messagesAsString: check.getErrorAsString()
             };

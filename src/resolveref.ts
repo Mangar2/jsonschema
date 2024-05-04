@@ -32,13 +32,13 @@ const getSchemaById = (id: string, definitions: Record<string, any>): any | unde
  * @param definition - The root schema definition.
  * @returns The schema definition located at the specified path.
  */
-const getSchemaByPath = (path: string, definition: any): any | undefined => {
+const getSchemaByPath = (path: string, definition: any): any => {
     const pathChunks = path.split('/');
     pathChunks.shift(); // Remove the first empty element from leading slash
     let result: any = definition;
     for (let chunk of pathChunks) {
-        chunk = decodeURIComponent(chunk.replace(/~1/g, '/').replace(/~0/g, '~'));
-        result = result && result[chunk];
+        const decodedChunk = decodeURIComponent(chunk.replace(/~1/g, '/').replace(/~0/g, '~'));
+        result = result && result[decodedChunk];
         if (result === undefined) {
             break;
         }
@@ -52,18 +52,19 @@ const getSchemaByPath = (path: string, definition: any): any | undefined => {
  * @param definitionRoot - The full schema definition from which references are resolved.
  * @returns The part of the schema definition referenced.
  */
-export const resolveRef = (id: string, definitionRoot: any): any | undefined => {
-    const isLocal = id.charAt(0) === '#';
-    const isPath = (id === '#' || id.charAt(1) === '/');
-
-    if (isLocal && isPath) {
+export const resolveRef = (id: string, definitionRoot: any): any => {
+    const isLocal = id.startsWith('#');
+    if (!isLocal) {
+        return undefined;
+    }
+    const isPath = (id === '#' || id?.charAt(1) === '/');
+    if (isPath) {
         return getSchemaByPath(id, definitionRoot);
-    } else if (isLocal) {
+    } else {
         const definitions = definitionRoot.$defs ?? definitionRoot.definitions;
         return getSchemaById(id, definitions);
     }
 
-    return undefined;
 };
 
 

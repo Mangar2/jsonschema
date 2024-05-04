@@ -13,4 +13,4 @@
  * @param definitionRoot - The full schema definition from which references are resolved.
  * @returns The part of the schema definition referenced.
  */
-export declare const resolveRef: (id: string, definitionRoot: any) => any | undefined;
+export declare const resolveRef: (id: string, definitionRoot: any) => any;

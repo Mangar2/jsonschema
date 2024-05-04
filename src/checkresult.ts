@@ -93,7 +93,7 @@ export class CheckResult {
 
     private getMessage(message: string, path?: string, expected?: any, received: any = ''): ErrorMessage {
         return {
-            path: path === undefined ? '' : path,
+            path: path ?? '',
             message,
             expected: this.stringify(expected),
             received: this.stringify(received),

@@ -11,7 +11,6 @@ JSON schema validator matching standard version 0.7. It is developed in typescri
 - [Not Supported](#not-supported-of-standard-07)
 - [Class CheckJson](#Class-CheckJson)
   - [Parameters](#CheckJson-Parameters)
-  - [Members](#CheckJson-Members)
   - [Methods](#CheckJson-Methods)
     - [throwOnValidationError](#throwOnValidationError)
     - [validate](#validate)
@@ -50,16 +49,12 @@ check = new CheckJson(schema)
 // Validates a schema against the schema definition
 check.validate({ topic: '/a/b', value: 'on' })
 
-// get all error messages 
-const messages = check.messages
-
 // Throws an Error, if the validation fails. The error message contains all errors (truncated if the length exceeded 512 characters)
 check.throwOnValidationError({ topic: '/a/b' })
 
 // Tests, if the schema is a valid schema. This will not be tested automatically elsewhere!
 // 
-check.testSchema();
-console.log(check.getErrors());
+console.log(check.testSchema().messagesAsString);
 ```
 
 ### CheckJson Parameters
@@ -75,12 +70,6 @@ console.log(check.getErrors());
 | ---------- | ------------ | ------------ | ------------ | ----------------- |
 | `deepUnique` | `boolean` | optional | true | if true , the content is checked deeply . For example different objects with the same | |
 | `stringToNumber` | `boolean` | optional | false | if true , strings containing numbers are automatically converted | |
-
-### CheckJson Members
-
-| Name | Type | description |
-| ------------ | ------------ | ------------ |
-| `messages` | `Object, string` | Gets the list of error messages |
 
 ### CheckJson Methods
 

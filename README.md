@@ -2,55 +2,41 @@
 
 # Abstract
 
-JSON schema validator matching standard version 0 . 7
+JSON schema validator matching standard version 0.7. It is developed in typescript and can be installed without installing any other libraries. 
+
 
 ## Contents
 
 - [Meta](#Meta)
-- [Global Functions](#Global-functions)
-  - [_checkPropertyNames](#_checkPropertyNames)
-- [Class CheckInput](#Class-CheckInput)
-  - [Parameters](#CheckInput-Parameters)
-  - [Members](#CheckInput-Members)
-  - [Methods](#CheckInput-Methods)
+- [Not Supported](#not-supported-of-standard-07)
+- [Class CheckJson](#Class-CheckJson)
+  - [Parameters](#CheckJson-Parameters)
+  - [Members](#CheckJson-Members)
+  - [Methods](#CheckJson-Methods)
     - [throwOnValidationError](#throwOnValidationError)
     - [validate](#validate)
+    - [getErrorAsString](#geterrorasstring)
+    - [testSchema](#testschema)
 
 ## Meta
 
 | | |
 | --- | --- |
-| **File** | checkinput.js |
+| **File** | index.ts |
 | **Abstract** | JSON schema validator matching standard version 0 . 7 |
 | **Author** | Volker Böhm |
-| **Copyright** | Copyright ( c ) 2020 Volker Böhm |
+| **Copyright** | Copyright ( c ) 2024 Volker Böhm |
 | **License** | This software is licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version 3 . It is furnished "as is" , without any support , and with no warranty , express or implied , as to its usefulness for any purpose . |
 
-## Global functions
+## Not supported (of standard 0.7)
 
-### _checkPropertyNames
+* Access to remote schemas (via http/https)
+* Content checks (JSON or base64 files)
+* Ecmascript-regex 
 
-`_checkPropertyNames (definition, object, checkSubschema) => {CheckResult}`
+## Class CheckJson
 
-Checks the property names
-
-#### _checkPropertyNames Parameters
-
-| Name | Type | Description |
-| ---------- | ------------ | ----------------- |
-| `definition` | `Object` | property names schema definition | |
-| `object` | `Object` | object to check | |
-| `checkSubschema` | `function` | ( definition , data ) | |
-
-#### _checkPropertyNames returns
-
-| Type | Description |
-| ---- | ----------- |
-| `CheckResult` | result of the check with 'check' and 'message' |
-
-## Class CheckInput
-
-`new CheckInput(definition, options)`
+`new CheckJson(definition, options)`
 
 Creates a new JSON Schema validation class to validate a data object according to a JSON Schema . Many thanks to epoberezkin/JSON-Schema-Test-Suite for providing a cool test suite . I use it to check my implementation This is not ( yet ) a complete implementation . The following tests are not running yet :
 
@@ -60,29 +46,23 @@ Creates a new JSON Schema validation class to validate a data object according t
 ### Example
 
 ```javascript
-check = new CheckInput({
-  type: 'object',
-  properties: {
-      topic: { type: 'string' },
-      value: { type: 'string' },
-  },
-  required: ['topic', 'value']
-})
-// returns true, as the parameter fits to the descriptions
+check = new CheckJson(schema)
+// Validates a schema against the schema definition
 check.validate({ topic: '/a/b', value: 'on' })
 
-// returns false and fills the error message
-// check.message is { topic: 'missing property topic', value: 'missing property value' }
-check.validate ( {} )
+// get all error messages 
+const messages = check.messages
 
-// Throws an Error, as the validation does not fits to the description
+// Throws an Error, if the validation fails. The error message contains all errors (truncated if the length exceeded 512 characters)
 check.throwOnValidationError({ topic: '/a/b' })
 
-// Prints the error message
-console.log(check.messages)
+// Tests, if the schema is a valid schema. This will not be tested automatically elsewhere!
+// 
+check.testSchema();
+console.log(check.getErrors());
 ```
 
-### CheckInput Parameters
+### CheckJson Parameters
 
 | Name | Type | Description |
 | ---------- | ------------ | ----------------- |
@@ -96,13 +76,13 @@ console.log(check.messages)
 | `deepUnique` | `boolean` | optional | true | if true , the content is checked deeply . For example different objects with the same | |
 | `stringToNumber` | `boolean` | optional | false | if true , strings containing numbers are automatically converted | |
 
-### CheckInput Members
+### CheckJson Members
 
 | Name | Type | description |
 | ------------ | ------------ | ------------ |
 | `messages` | `Object, string` | Gets the list of error messages |
 
-### CheckInput Methods
+### CheckJson Methods
 
 #### throwOnValidationError
 
@@ -119,18 +99,49 @@ Validates the input and throws a message on error
 
 #### validate
 
-`validate (data) => {boolean}`
+`validate (data) => {CheckJsonResult}`
 
-Checks an object against a swagger defintion
+Checks an object against the schema
 
 ##### validate Parameters
 
 | Name | Type | Description |
 | ---------- | ------------ | ----------------- |
-| `data` | `Object` | data to check against definition | |
+| `data` | `Object` | data to check against schema | |
 
 ##### validate returns
 
 | Type | Description |
 | ---- | ----------- |
-| `boolean` | true , if the data matches to the definition else false |
+| `CheckJsonResult` | {result: boolean, messages: message[], messagesAsString: string} |
+
+#### getErrorAsString
+
+`getErrorAsString (truncateLength: number = 512):string`
+
+Gets the error message as a string truncated by an amount of characters
+
+##### getErrorAsString Parameters
+
+| Name | Type | Description |
+| ---------- | ------------ | ----------------- |
+| `truncateLength` | `number` | maximal amount of characters | |
+
+##### getErrorAsString returns
+
+| Type | Description |
+| ---- | ----------- |
+| `string` | the error message as string |
+
+#### testSchema
+
+`testSchema ():boolean`
+
+Tests, if the current schema is valid. This will not be tested, when checking the data.
+
+##### testSchema returns
+
+| Type | Description |
+| ---- | ----------- |
+| `CheckJsonResult` | {result: boolean, messages: message[], messagesAsString: string} |
+

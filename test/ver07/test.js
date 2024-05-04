@@ -10,7 +10,7 @@
 
 'use scrict'
 
-const { CheckInput } = require('../../dist/checkinput')
+const { CheckJson } = require('../../dist/index')
 const basePath = './'
 
 class UnitTest {
@@ -39,6 +39,9 @@ class UnitTest {
     showResult(total) {
         console.log('Passed: ' + this.passed + ' of ' + total)
         console.log('Failed: ' + this.failed + ' of ' + total)
+        if (this.passed === total) {
+            console.log('All tests passed!')
+        }
     }
 
 }
@@ -53,18 +56,24 @@ function checkSchema(fileName) {
     fileName = basePath + fileName + '.json'
     const definition = require(fileName)
     for (const schema of definition) {
-        const check = new CheckInput(schema.schema)
+        const check = new CheckJson(schema.schema)
         for (const test of schema.tests) {
-            const result = check.validate(test.data)
-            if (result !== test.valid) {
+            const testSchema = check.testSchema()
+            if (!testSchema.result) {
+                unitTest.assertEqual(true, false, fileName + ': ' + schema.description + ' - ' + test.description)
+                console.log(testSchema.messagesAsString)
+                // for debuggin, set breakpoint here
+                check.testSchema()
+                continue
+            }
+            const testResult = check.validate(test.data)
+            if (testResult.result !== test.valid) {
                 // for debuggin, set breakpoint here
                 check.validate(test.data)
             }
-            unitTest.assertEqual(result, test.valid, fileName + ': ' + schema.description + ' - ' + test.description)
-            if (result !== test.valid){
-                unitTest.log(JSON.stringify(check.messages, null, 2))
-                // unitTest.log(JSON.stringify(schema.schema, null, 2))
-                unitTest.log(JSON.stringify(test.data, null, 2))
+            unitTest.assertEqual(testResult.result, test.valid, fileName + ': ' + schema.description + ' - ' + test.description)
+            if (testResult.result !== test.valid) {
+                console.log(testResult.messagesAsString)
             }
         }
     }
@@ -120,5 +129,5 @@ for (const file of files) {
 }
 
 module.exports = {
-    run: () => {unitTest.showResult(486)}
+    run: () => {unitTest.showResult(488)}
 }

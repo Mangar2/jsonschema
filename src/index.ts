@@ -8,3 +8,5 @@
  * @copyright Copyright (c) 2024 Volker Böhm
  * @overview JSON schema validator matching standard version 0.7
  */
+
+export { CheckJson } from './checkjson';

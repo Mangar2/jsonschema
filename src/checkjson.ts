@@ -12,34 +12,32 @@
 'use strict';
 
 import { deepEqualRec } from './deepequal';
-import { CheckResult } from './checkresult';
+import { CheckResult, ErrorMessage } from './checkresult';
 import { checkBoolean, checkTrueFalse, checkNumber } from './checkbasictypes';
 import { checkString } from './checkstring';
 import { checkType } from './checktype';
 import { checkObject } from './checkobject';
 import { checkArray } from './checkarray';
 import { resolveRef } from './resolveref';
+import { schemaValidator } from './jsonschema';
+
+export type CheckJsonResult = {
+    result: boolean;
+    messages: ErrorMessage[];
+    messagesAsString: string;
+};
+
 
 /**
  * Class to validate a data object according to a JSON Schema.
  */
-export class CheckInput {
+export class CheckJson {
     private definition: any;
-    private _messages: any;
     private _options: { deepUnique: boolean; stringToNumber?: boolean };
 
     constructor(definition: any, options: { deepUnique?: boolean; stringToNumber?: boolean } = {}) {
         this.definition = definition;
-        this._messages = undefined;
         this._options = { deepUnique: options.deepUnique || true, stringToNumber: options.stringToNumber || false };
-    }
-
-    get messages() {
-        return this._messages;
-    }
-
-    set messages(messages: any) {
-        this._messages = messages;
     }
 
     private _isEqual = (definition: any, variable: any): CheckResult => {
@@ -172,7 +170,11 @@ export class CheckInput {
         if (definition.$ref) {
             const refDefinition = resolveRef(definition.$ref, this.definition);
             if (!refDefinition) {
-                result.invalidate({ message: `reference ${definition.$ref} not found` });
+                result.invalidate({ 
+                    message: 'Schema error',
+                    expected: `reference ${definition.$ref} is defined in the schema`,
+                    received: definition.$ref
+                });
                 return result;
             }
             result = this._checkSchema(refDefinition, variable);
@@ -190,17 +192,46 @@ export class CheckInput {
         return result;
     };
 
-    public validate = (data: any): boolean | undefined => {
+ 
+    /**
+     * Validates the given data against the JSON schema.
+     * @param data - The data to be validated.
+     * @returns An object containing the validation result.
+     */
+    public validate = (data: any): CheckJsonResult => {
         const check = this._checkSchema(this.definition, data);
-        this.messages = check.messages;
-        return check.check;
+        return {
+            result: check.check ? true : false,
+            messages: check.messages,
+            messagesAsString: check.getErrorAsString()
+        };
     };
 
-    public throwOnValidationError = (data: any, message: string = ''): void => {
-        if (!this.validate(data)) {
-            throw new Error(message + JSON.stringify(this.messages));
+
+
+    /**
+     * Throws an error if the provided data fails validation.
+     * @param data - The data to validate.
+     * @param textMessage - Optional text message to include in the error.
+     */
+    public throwOnValidationError = (data: any, textMessage: string = ''): void => {
+        const check = this.validate(data);
+        if (!check.result) {
+            let separator = textMessage === '' ? '' : '\n'; 
+            throw new Error(textMessage + separator + check.messagesAsString);
         }
     };
+
+
+    /**
+     * Validates the JSON against the schema and returns the result.
+     * @returns The result of the JSON schema validation.
+     */
+    public testSchema(): CheckJsonResult {
+        const check = new CheckJson(schemaValidator);
+        return check.validate(this.definition);
+    };
+
 }
 
 

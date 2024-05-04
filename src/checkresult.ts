@@ -21,6 +21,7 @@ interface ErrorMessage {
     message: string;
     expected?: string;
     received?: any;
+    detail: ErrorMessage[];
 }
 
 export class CheckResult {
@@ -86,7 +87,8 @@ export class CheckResult {
             path: path === undefined ? '' : path, 
             message, 
             expected: this.formatReceivedValue(expected), 
-            received: this.formatReceivedValue(received) };
+            received: this.formatReceivedValue(received),
+            detail: []};
     }
 
     /**
@@ -156,6 +158,31 @@ export class CheckResult {
         } else {
             this._messages = [];
         }
+    }
+
+
+    /**
+     * Joins the error messages into a single error message and sets it as the detail of the error message.
+     * @param message - The main error message.
+     * @param path - The path of the error.
+     * @param received - The received value.
+     */
+    joinMessages({ message, path, received } : { message: string, path?: string, received?: any }): void {
+        let expected: string = '';
+        let separator = '';
+        for (let detail of this._messages) {
+            expected += separator + detail.expected;
+            separator = ' or ';
+            if (expected.length > 64) {
+                if (expected.length > 128) {
+                    expected = expected.substring(0, 128) + '...';
+                }
+                break;
+            }
+        }
+        const errorMessage = this.getMessage(message, path, expected, received);
+        errorMessage.detail = this._messages;
+        this._messages = [errorMessage];
     }
 
     /**

@@ -52,20 +52,25 @@ const checkArrayConstrains = (definition: any, data: any[], deepUnique: boolean 
     const result = new CheckResult(true);
     if (definition.minItems !== undefined && data.length < definition.minItems) {
         result.invalidate({ 
-            message: `Array must have at least ${definition.minItems} elements.` 
+            path: `items[${data.length}]`,
+            message: `Too few items in array.`,
+            expected: `A minimum of ${definition.minItems} elements.`,
+            received: data 
         });
     }
     if (definition.maxItems !== undefined && data.length > definition.maxItems) {
         result.invalidate({ 
             path: `items[${data.length}]`,
-            message: 'Unexpected item in array. No additional items are allowed',
+            message: 'Too many items in array.',
             expected: `A maximum of ${definition.maxItems} elements.`,
-            received: data.length.toString()
+            received: data
         });
     }
     if (definition.uniqueItems === true && !isUniqueArray(data, deepUnique)) {
         result.invalidate({ 
-            message: 'Array items must be unique.' 
+            message: 'Array items must be unique.', 
+            expected: 'No duplicate items.',
+            received: data
         });
     }
     return result;
@@ -84,7 +89,10 @@ const checkContains = (definition: any, array: any[], checkSubschema: (def: any,
         result.addAlternative(checkSubschema(definition, element));
     });
     if (!result.check) {
-        result.invalidate({ message: 'No array element validates to the definition.' });
+        result.invalidate({ 
+            message: 'No array element validates to the definition.',
+            received: array
+        });
     }
     return result;
 };
@@ -106,9 +114,9 @@ const checkArrayItems = (definition: any, array: any[], checkSubschema: (def: an
         } else if (definition.additionalItems === false) {
             result.invalidate({
                 path: `items[${index}]`,
-                message: 'Unexpected item in array. No additional items are allowed',
+                message: 'No additional items are allowed.',
                 expected: `A maximum of ${definition.items.length} elements.`,
-                received: array.length.toString()
+                received: array
             })
             return;
         } else if (definition.additionalItems !== undefined) {
@@ -147,7 +155,7 @@ export const checkArray = (definition: any, array: any[], checkSubschema: (def: 
         array.forEach((item, index) => {
             const check = checkSubschema(definition.items, item);
             if (!check.check) {
-                check.addToPath(index);
+                check.addToPath(`[${index}]`);
             }
             result.addCheck(check);
         });

@@ -48,8 +48,8 @@ export const checkType = (definition: { type: string | string[] }, variable: any
         if (!result.check) {
             const expected = `${typeList.length > 1 ? 'any of ': ''}${typeList.join(',')}`
             result.invalidate({
-                message: `Type mismatch, expected ${typeList.length > 1 ? 'any of ': ''}${typeList.join(',')}`,
                 path: '',
+                message: 'Type mismatch.',
                 expected,
                 received: variable
             });

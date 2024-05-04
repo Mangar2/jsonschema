@@ -3,6 +3,7 @@
 ## 3.0.0 2024-05-03 version
 
 - Converted to typescript (beside tests, they are in JavaScript)
+- Refactored error messages
 
 ## 2.6.2 2022-05-11 patch
 

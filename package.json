@@ -5,9 +5,8 @@
   "main": "jsonschema.ts",
   "scripts": {
     "test": "tsc && node ./test/test.js",
-    "doku": "js2md . README.md",
-    "lint": "eslint *.js",
-    "prepublishOnly": "tsc && npm run lint && npm test && npm run doku"
+    "lint": "eslint src/*.ts",
+    "prepublishOnly": "tsc && npm run lint && npm test"
   },
   "keywords": [
     "validate",
@@ -16,11 +15,14 @@
   ],
   "author": "Volker Böhm",
   "license": "LGPL-3.0-or-later",
-  "homepage": "https://github.com/Mangar2/yaha.git",
+  "homepage": "https://github.com/Mangar2/jsonschema",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Mangar2/yaha/tree/master/node_modules/@mangar2/checkinput"
+    "url": "https://github.com/Mangar2/jsonschema"
   },
   "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "^4.2.4"
   }
 }

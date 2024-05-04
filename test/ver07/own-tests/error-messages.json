@@ -1,0 +1,29 @@
+[
+    {
+        "description": "error messages",
+        "schema": {
+            "properties": {
+                "foo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "bar": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "integer" }
+                    ]
+                }
+            },
+            "additionalItems": {"type": "integer"}
+        },
+        "tests": [
+            {
+                "description": "foo items do not match schema",
+                "data": { "foo": [ 1, 2, "foo" ], "bar": 1.5 },
+                "valid": false
+            }
+        ]
+    }
+]

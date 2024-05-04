@@ -56,7 +56,11 @@ export class CheckInput {
             }
         }
         if (!result.check) {
-            result.invalidate({ message: `"${variable}" does not match ${JSON.stringify(definition)}` });
+            result.invalidate({ 
+                message:  'The value does not match any of the enum values.',
+                expected: `One of [${definition.join(', ')}]`,
+                received: variable
+            });
         }
         return result;
     };
@@ -80,7 +84,10 @@ export class CheckInput {
             result.addAlternative(current);
         });
         if (!result.check) {
-            result.addToPath('anyOf');
+            result.joinMessages({ 
+                message: 'No alternative matches.', 
+                received: variable
+            });
         }
         return result;
     };
